@@ -36,9 +36,14 @@ func walk(dest, dir string) {
 				}
 				f.Close()
 				filesum := hex.EncodeToString(s.Sum(nil))
-				log.Println(fullpath, filesum)
-				os.Rename(fullpath, path.Join(dest, filesum))
-				os.Symlink(path.Join(dest, filesum), fullpath)
+				log.Printf(fullpath, filesum)
+				if err := os.Rename(fullpath, path.Join(dest, filesum)); err != nil {
+					log.Println("Failed to move", err)
+					break
+				}
+				if err := os.Symlink(path.Join(dest, filesum), fullpath); err != nil {
+					log.Printf("Failed to link %q to %q\n", filesum, fullpath)
+				}
 			}
 		}
 	}
